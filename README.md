@@ -1,4 +1,4 @@
-# 📘 Advanced Programming – Library Borrowing System (Version B)
+# 📘 Advanced Programming – Library Borrowing System 
 
 **National College of Ireland – Advanced Programming CA (October 2025)**  
 Author: **Felipe Paneque (x23156635)**  
@@ -86,6 +86,8 @@ It allows multiple clients to connect simultaneously, borrow and return books, a
 
 /ClientApplication
 └── Client.java
+
+---
 
 ## 🧾 Academic Context
 **This project was developed as part of the Advanced Programming Continuous Assessment (CA) for the  
