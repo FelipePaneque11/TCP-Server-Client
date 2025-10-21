@@ -11,15 +11,16 @@ package ca_advancedprogramming;
  * Advanced programming CA
  */
 public class LoanRecord {
+    // Basic value object capturing who borrowed which book and when.
     private String borrower, date, title;
-    
+
     //constructor
     public LoanRecord(String borrower, String date, String title) {
         this.borrower = borrower;
         this.date = date;
         this.title = title;
     }
-    
+
     //getters
     public String getBorrower() {
         return borrower;

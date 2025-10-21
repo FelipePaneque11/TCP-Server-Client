@@ -19,21 +19,29 @@ import java.nio.charset.StandardCharsets;
  * Advanced programming CA
  */
 public class Client {
+    // TCP port where the server listens for connections.
     private static final int PORT = 1234;
     private static InetAddress host;
+    // Default URL used to seed the server with loan data as soon as the client launches.
     private static final String importUrl =  "https://gist.githubusercontent.com/FelipePaneque11/1bc0479cb3331ebcf8bae9bc5ec715f6/raw/de71d64f20ef4e1a70f0764ce10cb4b723e40d1d/loans.txt";
     
     public static void main(String[] args) {
+        // Resolve the local machine so we can contact the server running on the same host.
         try {
             host = InetAddress.getLocalHost();
         } catch (IOException e) {
             System.out.println("Unable to get local host");
             System.exit(1);
-        }  
+        }
             run();
     }
 
+    /**
+     * Establishes the socket connection, relays user input to the server and
+     * keeps reading responses until the user exits or the connection drops.
+     */
     private static void run() {
+        // Manage the lifetime of all I/O resources with a single try-with-resources block.
         try (
             Socket socket = new Socket(host, PORT);
             BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
@@ -51,7 +59,8 @@ public class Client {
             String line;
             while ((line = keyboard.readLine()) != null) {
                 String trimmed = line.trim();
-                
+
+                // Interpret client-side helper commands before talking to the server.
                 //manual import still works if necessary
                 if(trimmed.toLowerCase().startsWith("import;")){
                     String[] parts = trimmed.split(";", 2);
@@ -65,6 +74,7 @@ public class Client {
                 }
                 
                 
+                // Forward the raw input to the server when no client-side command was handled.
                 out.println(line); // send
                 if ("STOP".equalsIgnoreCase(line)) { // match the prompt text
                     String reply = in.readLine();
@@ -72,6 +82,7 @@ public class Client {
                     break;
                 }
                 String reply = in.readLine(); // receive
+                // If the server ends the stream, notify the user and exit the loop.
                 if (reply == null) {
                     System.out.println("Server closed the connection.");
                     break;
@@ -83,6 +94,10 @@ public class Client {
         }
     }
     
+    /**
+     * Downloads the remote loan list, parses each section, and streams the
+     * resulting commands to the server one by one.
+     */
     private static void doHttpImport(String urlString, PrintWriter out, BufferedReader in) {
         System.out.println("Client> Importing from: " + urlString);
         int imported = 0;
@@ -101,6 +116,7 @@ public class Client {
                 String currentBorrower = null;
                 int lineNo = 0;
 
+                // Process each line from the remote definition in order.
                 while ((line = r.readLine()) != null) {
                     lineNo++;
                     String raw = line.trim();
@@ -116,12 +132,12 @@ public class Client {
                         if (currentBorrower.isEmpty()) {
                             System.out.println("Client> Skipped line " + lineNo + ": empty borrower");
                             skipped++;
-                            currentBorrower = null; // invalida seção até aparecer um borrower válido
+                            currentBorrower = null; // invalidate the section until a valid borrower appears
                         }
-                        continue; // vai para a próxima linha
+                        continue; // go to the next line
                     }
 
-                    // a partir daqui, esperamos "date; title"
+                    // from this point on we expect entries in the "date; title" format
                     if (currentBorrower == null) {
                         System.out.println("Client> Skipped line " + lineNo + ": missing borrower=<Name> section above");
                         skipped++;
@@ -143,7 +159,7 @@ public class Client {
                         continue;
                     }
 
-                    // envia para o servidor no formato da Versão B
+                    // send to the server using Version B message format
                     String msg = "borrow; " + currentBorrower + "; " + date + "; " + title;
                     out.println(msg);
 

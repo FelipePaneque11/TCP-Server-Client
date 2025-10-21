@@ -19,8 +19,11 @@ import java.util.*;
  * Advanced programming CA
  */
 public class ClientsConnection implements Runnable{
+    // Socket dedicated to the connected client.
     private Socket client_link = null;
+    // Human readable identifier printed to the server log.
     private final String clientID;
+    // Shared in-memory library that persists across all clients.
     private final LibraryStore store;
 
     public ClientsConnection(Socket connection, String cID, LibraryStore store) {
@@ -28,15 +31,17 @@ public class ClientsConnection implements Runnable{
         this.clientID = cID;
         this.store = store;
     }
-    
+
     @Override
     public void run() {
         try {
+            // Configure text-based input/output helpers around the socket streams.
             BufferedReader in = new BufferedReader(new InputStreamReader(client_link.getInputStream())); //Step 3.
             PrintWriter out = new PrintWriter(client_link.getOutputStream(), true); //Step 3.
-            
+
             String message;
-            int n = 0;            
+            int n = 0;
+            // Read each line sent by the client until the socket closes.
             while ((message = in.readLine()) != null) {
                 String raw = message.trim();
                 System.out.println("[" + clientID + "] " + raw);
@@ -48,6 +53,7 @@ public class ClientsConnection implements Runnable{
                 }
 
                 try {
+                    // Parse the instruction and send the formatted response back to the client.
                     String reply = handleCommand(raw);
                     out.println(reply);
                 } catch (InvalidCommandException ice) {
@@ -61,16 +67,17 @@ public class ClientsConnection implements Runnable{
         } finally {
             try {
                 System.out.println("\n* TERMINATE connection with " + clientID + " ... *");
+                // Ensure the socket is closed so resources are freed on both sides.
                 client_link.close();				    //Step 5.
             } catch (IOException e) {
                 System.out.println("Unable to disconnect!");
             }
         }
-    } 
-    
-    //this method handles the borrow,return, and list commands by the clients.
+    }
+
+    // this method handles the borrow, return, and list commands sent by clients.
     private String handleCommand(String message) throws InvalidCommandException {
-        //awaits an action (borrower,date,title
+        // Expect "action; borrower; date; title" with semicolons delimiting the fields.
         String[] parts = message.split(";");
         if (parts.length != 4) {
             throw new InvalidCommandException("expected 4 fields: action; borrower; date; title");
@@ -98,7 +105,8 @@ public class ClientsConnection implements Runnable{
                 throw new InvalidCommandException("action must be borrow/return/list");
         }
     }
-    
+
+    // Format the collection of titles in a reader-friendly way for the client terminal.
     private String formatBorrowerList(String borrower, List<String> titles){
         if(titles.isEmpty()){
             return borrower + " currently has: (no books on loan)";

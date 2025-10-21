@@ -12,6 +12,7 @@ package ca_advancedprogramming;
  */
 
 public class InvalidCommandException extends Exception{
+    // Wraps validation errors so the client receives a descriptive message without crashing the thread.
     public InvalidCommandException(String message){
         super(message);
     }

@@ -12,34 +12,39 @@ import java.util.*;
  * Advanced programming CA
  */
 public class LibraryStore {
+    // borrower -> (normalized title -> loan record) keeping insertion order for deterministic output.
     private final Map<String, LinkedHashMap<String,LoanRecord>> loansByBorrower = new HashMap<>();
-    
-//  normalize keys (case-sensitive & trim)
+
+    // normalize keys by trimming whitespace and replacing null with empty strings
     private String norm(String s) { return s == null ? "" : s.trim(); }
-    
-    //add loans
+
+    /**
+     * Register a book loaned by a borrower and return the borrower inventory afterwards.
+     */
     public synchronized List<String> borrow(String borrower, String date, String title) throws InvalidCommandException {
         borrower = norm(borrower);
         date = norm(date);
         title = norm(title);
-        
+
         if(borrower.isEmpty() || date.isEmpty() || title.isEmpty()){
             throw new InvalidCommandException("borrow requires borrower, date, and title");
         }
-        
-        //
+
+        // ensure the borrower map exists before we add the record
         loansByBorrower.putIfAbsent(borrower, new LinkedHashMap<>());
         LinkedHashMap<String, LoanRecord> shelf = loansByBorrower.get(borrower);
-        //se ja existe mesmo titulo, apenas garante a presença
+        // if the same title already exists we simply replace the record to ensure the latest information is stored
         shelf.put(title.toLowerCase(), new LoanRecord(borrower,date,title));
         return orderedTitles(shelf);
     }
-    
-    //return book
+
+    /**
+     * Remove a loan entry for the borrower when a book is returned and report the remaining titles.
+     */
     public synchronized List<String> returnBook(String borrower,String date, String title) throws InvalidCommandException {
         borrower = norm(borrower);
         title = norm(title);
-        
+
         if(borrower.isEmpty() || title.isEmpty()){
             throw new InvalidCommandException("borrow requires borrower and title");
         }
@@ -48,25 +53,32 @@ public class LibraryStore {
         if(shelf == null || shelf.remove(title.toLowerCase()) == null){
             throw new InvalidCommandException("borrower '" + borrower + "' does not currently hold '" + title + "'");
         }
-        
+
         if(shelf.isEmpty()){
+            // Clean up empty borrower shelves to keep the store compact.
             loansByBorrower.remove(borrower);
         }
-        return shelf == null ? Collections.emptyList() : orderedTitles(shelf);        
+        return shelf == null ? Collections.emptyList() : orderedTitles(shelf);
     }
     
-    //list books 
+    /**
+     * List all titles currently on loan for the provided borrower.
+     */
     public synchronized List<String> list(String borrower) throws InvalidCommandException {
         borrower = norm(borrower);
         if(borrower.isEmpty()){
             throw new InvalidCommandException("list requires borrower");
         }
         LinkedHashMap<String, LoanRecord> shelf = loansByBorrower.get(borrower);
+        // Borrower may not have any books yet; return an empty list instead of null.
         if (shelf == null) return Collections.emptyList();
         return orderedTitles(shelf);
     }
     
-    //return title in alphabetical order
+    /**
+     * Helper that extracts the display titles and sorts them alphabetically
+     * so the client receives a predictable ordering.
+     */
     private List<String> orderedTitles(LinkedHashMap<String, LoanRecord> shelf){
         List<String> titles = new ArrayList<>();
         for(LoanRecord r : shelf.values()){
