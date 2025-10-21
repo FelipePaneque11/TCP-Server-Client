@@ -85,21 +85,22 @@ It allows multiple clients to connect simultaneously, borrow and return books, a
 └── InvalidCommandException.java
 
 /ClientApplication
-├── Client.java
+└── Client.java
 
 ## 🧾 Academic Context
-**This project was developed as part of the Advanced Programming Continuous Assessment (CA) for the
+**This project was developed as part of the Advanced Programming Continuous Assessment (CA) for the  
 BSc (Hons) in Computer Science at the National College of Ireland (NCI).**
 
 It demonstrates key concepts of advanced Java programming:
-Socket-based client/server communication.
-Thread management and synchronization.
-Exception handling.
-Network I/O streams.
-HTTP integration via URL connections.
+- Socket-based client/server communication  
+- Thread management and synchronization  
+- Exception handling  
+- Network I/O streams  
+- HTTP integration via URL connections  
 
-👨‍💻 Author
+---
 
-Felipe Traskinas Malta Paneque.
-National College of Ireland.
-📍 Dublin, Ireland.
+## 👨‍💻 Author
+**Felipe Traskinas Malta Paneque**  
+National College of Ireland  
+📍 Dublin, Ireland  
