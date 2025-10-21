@@ -16,9 +16,11 @@ import java.net.*;
 public class Server {
 
     private static ServerSocket servSock;
+    // Fixed port used by every client to reach the service.
     private static final int PORT = 1234;
+    // Simple counter so we can label each client session in the logs.
     private static int clientConnections = 0;
-    
+
     //open the library in the server
     static final LibraryStore Store = new LibraryStore();
 
@@ -31,18 +33,24 @@ public class Server {
             System.exit(1);
         }
 
+        // Main accept loop - run forever until the process is stopped manually.
         while(true){
             run();
         }
     }
 
+    /**
+     * Blocks until a new client connects, then hands the socket off to a
+     * dedicated worker thread.
+     */
     public static void run() {                     //Step 2.
-        try {            
+        try {
                 Socket link = servSock.accept();               //Step 2.
                 clientConnections++;
                 String clientID = "Client " + clientConnections;
                 System.out.println("Connected: " + clientID + "from " + link.getRemoteSocketAddress());
-                
+
+                // Each connection is processed concurrently so that multiple clients can interact at once.
                 Thread t = new Thread(new ClientsConnection(link, clientID, Store));
                 t.start();
         } catch (IOException e) {
