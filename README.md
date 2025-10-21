@@ -49,18 +49,6 @@ It allows multiple clients to connect simultaneously, borrow and return books, a
 | `STOP` | End the client connection gracefully |
 | `import; <url>` | (Optional) Manually import data from a public `.txt` file |
 
----
-
-/ServerApplication
-├── Server.java
-├── ClientsConnection.java
-├── LibraryStore.java
-├── LoanRecord.java
-└── InvalidCommandException.java
-
-/ClientApplication
-├── Client.java
-
 
 ## 🧠 Technologies Used
 
@@ -89,3 +77,29 @@ It allows multiple clients to connect simultaneously, borrow and return books, a
 
 ## 🗂️ Project Structure
 
+/ServerApplication
+├── Server.java
+├── ClientsConnection.java
+├── LibraryStore.java
+├── LoanRecord.java
+└── InvalidCommandException.java
+
+/ClientApplication
+├── Client.java
+
+## 🧾 Academic Context
+**This project was developed as part of the Advanced Programming Continuous Assessment (CA) for the
+BSc (Hons) in Computer Science at the National College of Ireland (NCI).**
+
+It demonstrates key concepts of advanced Java programming:
+Socket-based client/server communication
+Thread management and synchronization
+Exception handling
+Network I/O streams
+HTTP integration via URL connections
+
+👨‍💻 Author
+
+Felipe Traskinas Malta Paneque
+National College of Ireland
+📍 Dublin, Ireland
